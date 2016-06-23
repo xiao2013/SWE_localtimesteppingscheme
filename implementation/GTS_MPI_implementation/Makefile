@@ -5,11 +5,11 @@ SOURCES=main.c computeFlux.c computeRoeSolver.c updateFlux.c visual.c helper.c
 # --------
 CC=gcc
 
-CFLAGS=-Wall #-Werror -pedantic
+CFLAGS=-Wall -std=c99#-Werror -pedantic
 
 # Linker flags
 # ------------
-LDFLAGS= 
+LDFLAGS=-lm
 
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=swe_sim

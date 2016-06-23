@@ -89,20 +89,29 @@ int main(int argc, char **argv)
 	// 	}
 	// 	printf("\n");
 	// }
-		// if(i % plottingStep == 0){
-  //       	write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U);
-  //       }
+		if(i == 999){
+        		for (int x = 0; x < n_grid; ++x)
+				{
+					for (int y = 0; y < n_grid; ++y)
+					{
+						printf("%lf\t",U[ (x*n_grid + y)*3]);
+					}
+					printf("\n");
+				}
+        }
 
-		// tile creation
+		//tile creation
 
 		/* compute fluxes*/
 		computeFlux(U, F, G, n_grid, &amax);
+
+
 
 		/* updating the fluxes*/
 		updateFlux(U, F, G, n_grid, dt_dx);
 
 		//printf("Time Step = %d, amax = %lf \n", i, amax);
-		printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
+		//printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
 		/* write vtk file*/
 
 	}
