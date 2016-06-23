@@ -94,8 +94,8 @@ int main(int argc, char **argv)
                 && physy(y, mey, l_grid) <= ymax 
                 && physy(y, mey, l_grid) <= ymin)
             {
-                h[x*n_grid + y] = 1.0;
-                U[ (x*n_grid + y)*3] = h[x*n_grid + y];
+                h[x*(l_grid + 2) + y] = 1.0;
+                U[ (x*(l_grid + 2) + y)*3] = h[x*(l_grid + 2) + y];
             }
         }
     }
@@ -111,23 +111,23 @@ int main(int argc, char **argv)
     //     }
     // }
 
-    for (int x = 0; x < n_grid + 1; ++x)
+    for (int x = 1; x < l_grid+2; ++x)
     {
-        for (int y = 0; y < n_grid; ++y)
+        for (int y = 1; y < l_grid+1; ++y)
         {
             for (int i = 0; i < 3; ++i)
             {
-                F[ (x*n_grid + y)*3 + i ] = 0.0;
+                F[ (x*(l_grid + 2) + y)*3 + i ] = 0.0;
             }
         }
     }
-    for (int x = 0; x < n_grid; ++x)
+    for (int x = 1; x < l_grid+1; ++x)
     {
-        for (int y = 0; y < n_grid + 1; ++y)
+        for (int y = 1; y < l_grid+2; ++y)
         {
             for (int i = 0; i < 3; ++i)
             {
-                G[ (x*(n_grid+1) + y)*3 + i ] = 0.0;
+                G[ (x*(l_grid + 2) + y)*3 + i ] = 0.0;
             }
         }
     }
