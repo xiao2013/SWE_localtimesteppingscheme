@@ -6,11 +6,15 @@
 #include "updateFlux.h"
 #include "visual.h"
 
+# define physx( i, mex, NX ) ( (i) + mex*NX )
+# define physy( j, mey, NY ) ( (j) + mey*NY )
+
 int main(int argc, char **argv)
 {
 
     /* initialise MPI */
     int size, rank;
+    int mex, mey;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -29,11 +33,38 @@ int main(int argc, char **argv)
     /* for MPI tiles */
     int npx = sqrt(size);    // for making parallel processed tiles, npx is the square length of the tile grid e.g. if there are 9 processors then npx = 3)
     int l_grid = n_grid/npx; // l_grid = local grid, e.g. if n_grid = 50, and npx = 5, then the number of global grid elements per tile is 10 (in one dimension)
+    /* create 2D mpi processor virtual topology */
+    MPI_Comm mpi_comm_cart, mpi_comm_x, mpi_comm_y;
+    int dims[2];
+    int periods[2];
+    int coords[2];
+    int reorder = 0;
+    dims[0] = npx; /* number of processor in x direction */
+    dims[1] = npx; /* number of processor in y direction */
+    periods[0] = 0;
+    periods[1] = 0;
+
+    MPI_Cart_create (MPI_COMM_WORLD, 2, dims, periods, reorder, &mpi_comm_cart);
+    /* Build the sub-communicators along X and Y */
+    coords[0] = 1;
+    coords[1] = 0;
+    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_x);
+    coords[0] = 0;
+    coords[1] = 1;
+    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_y);
+    /* Rank along X, Y directions */
+    MPI_Comm_rank (mpi_comm_x, &mex);
+    MPI_Comm_rank (mpi_comm_y, &mey);
 
     /* Initialisation & memory allocation */
     double amax;
     double *h, *u, *v, *F, *G, *U;
-
+    int xmax, xmin, ymin, ymax;
+    xmin = 0;
+    xmax = 10;
+    ymin = n_grid - 20;
+    ymax = n_grid - 10;
+    
     // h = malloc(n_grid*n_grid*sizeof(double));
     // u = malloc(n_grid*n_grid*sizeof(double));
     // v = malloc(n_grid*n_grid*sizeof(double));
@@ -57,18 +88,28 @@ int main(int argc, char **argv)
             U[ (x*(l_grid+2) + y)*3]     = h[x*(l_grid+2) + y];
             U[ (x*(l_grid+2) + y)*3 + 1] = u[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
             U[ (x*(l_grid+2) + y)*3 + 2] = v[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
+            /* initialise the shock wave by lifting up parts of the water */
+            if (physx(x, mex, l_grid) <= xmax 
+                && physx(x, mex, l_grid) >= xmin 
+                && physy(y, mey, l_grid) <= ymax 
+                && physy(y, mey, l_grid) <= ymin)
+            {
+                h[x*n_grid + y] = 1.0;
+                U[ (x*n_grid + y)*3] = h[x*n_grid + y];
+            }
         }
     }
 
     /*initialise h*/
-    for (int x = 0; x < 10; ++x)
-    {
-        for (int y = n_grid - 20; y < n_grid-10; ++y)
-        {
-            h[x*n_grid + y] = 1.0;
-            U[ (x*n_grid + y)*3] = h[x*n_grid + y];
-        }
-    }
+
+    // for (int x = 0; x < 10; ++x)
+    // {
+    //     for (int y = n_grid - 20; y < n_grid-10; ++y)
+    //     {
+    //         h[x*n_grid + y] = 1.0;
+    //         U[ (x*n_grid + y)*3] = h[x*n_grid + y];
+    //     }
+    // }
 
     for (int x = 0; x < n_grid + 1; ++x)
     {
@@ -107,26 +148,26 @@ int main(int argc, char **argv)
     //  }
     //  printf("\n");
     // }
-        if(i == 999){
-                for (int x = 0; x < n_grid; ++x)
-                {
-                    for (int y = 0; y < n_grid; ++y)
-                    {
-                        printf("%lf\t",U[ (x*n_grid + y)*3]);
-                    }
-                    printf("\n");
-                }
-        }
+        // if(i == 999){
+        //         for (int x = 0; x < n_grid; ++x)
+        //         {
+        //             for (int y = 0; y < n_grid; ++y)
+        //             {
+        //                 printf("%lf\t",U[ (x*n_grid + y)*3]);
+        //             }
+        //             printf("\n");
+        //         }
+        // }
 
-        //tile creation
+        // //tile creation
 
-        /* compute fluxes*/
-        computeFlux(U, F, G, n_grid, &amax);
+        // /* compute fluxes*/
+        // computeFlux(U, F, G, n_grid, &amax);
 
 
 
-        /* updating the fluxes*/
-        updateFlux(U, F, G, n_grid, dt_dx);
+        // /* updating the fluxes*/
+        // updateFlux(U, F, G, n_grid, dt_dx);
 
         //printf("Time Step = %d, amax = %lf \n", i, amax);
         //printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
