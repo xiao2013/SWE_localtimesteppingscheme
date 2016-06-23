@@ -3,7 +3,7 @@ SOURCES=main.c computeFlux.c computeRoeSolver.c updateFlux.c visual.c helper.c
 
 # Compiler
 # --------
-CC=gcc
+CC=mpicc
 
 CFLAGS=-Wall -std=c99#-Werror -pedantic
 

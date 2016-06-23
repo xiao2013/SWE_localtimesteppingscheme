@@ -139,7 +139,7 @@ void computeFlux(double *U, double *F, double *G, int n_grid, double *maxValue)
 		}
 		amax = fmax(a, amax);
 	}
-	printf("\n");
+	//printf("\n");
 
 	// printf("y = 0 done! amax: %lf\n", amax);
 
