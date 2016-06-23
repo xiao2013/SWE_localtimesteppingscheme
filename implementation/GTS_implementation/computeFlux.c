@@ -100,6 +100,7 @@ void computeFlux(double *U, double *F, double *G, int n_grid, double *maxValue)
 	f_n = 0;
 	for (int y = 1; y < n_grid; ++y)
 	{
+		// @reminder: MPI the element indexed by the current y value (y=0) was already present from initiation of the tiles in the buffer column
 		for (int x = 0; x < n_grid; ++x)
 		{
 
@@ -118,6 +119,8 @@ void computeFlux(double *U, double *F, double *G, int n_grid, double *maxValue)
 			}
 			amax = fmax(a, amax);
 		}
+
+		// @reminder: copy
 	}
 
 	// printf("part 2 done! amax: %lf\n", amax);

@@ -36,7 +36,9 @@ void computeRoeSolver(double hl, double hr, double ul, double ur, double vl, dou
 	/* R matrix [1 0 1;
 	uhat-chat*cn -sn uhat+chat*cn;
     vhat-chat*sn cn vhat+chat*sn]*/
-	double R[3][3] = {{1.0, 0.0, 1.0}, {u_hat - c_hat*f_n, -g_n, u_hat + c_hat*f_n }, {v_hat - c_hat*g_n, f_n, v_hat + c_hat*g_n}};
+	double R[3][3] = { 	{1.0, 			    	0.0,  		1.0}, 
+						{u_hat - c_hat*f_n, 	-g_n, 		u_hat + c_hat*f_n }, 
+						{v_hat - c_hat*g_n, 	f_n, 		v_hat + c_hat*g_n}	};
     // double R[3][3] = {{1.0, 0.0, 0.0}, {0., 1., 0.}, {0., 0., 1.}};
     /* R^-1 * dQ = dW*/
 	double dW[3] = {0.5 * (c_hat*dh - h_hat*duperp/c_hat),
@@ -66,9 +68,9 @@ void computeRoeSolver(double hl, double hr, double ul, double ur, double vl, dou
     }
 
     /*Compute flux*/
-    double A[3][3] = {{a1, 0.0, 0.0},
-         {0.0, a2, 0.0},
-   	     {0.0, 0.0, a3}};
+    double A[3][3] = {	{a1, 	0.0, 	0.0},
+         				{0.0, 	a2, 	0.0},
+   	     				{0.0, 	0.0, 	a3}		};
    	//FL[3] = { uperpl*hl, ul*uperpl*hl + 0.5*gravity*hl*hl*f_n, vl*uperpl*hl + 0.5*gravity*hl*hl*g_n};
    	double FL[3] = { uperpl*hl, ul*uperpl*hl + 0.5*gravity*hl*hl*f_n, vl*uperpl*hl + 0.5*gravity*hl*hl*g_n};
    	double FR[3] = { uperpr*hr, ur*uperpr*hr + 0.5*gravity*hr*hr*f_n, vr*uperpr*hr + 0.5*gravity*hr*hr*g_n};

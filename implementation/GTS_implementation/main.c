@@ -92,6 +92,9 @@ int main(int argc, char **argv)
 		// if(i % plottingStep == 0){
   //       	write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U);
   //       }
+
+		// tile creation
+
 		/* compute fluxes*/
 		computeFlux(U, F, G, n_grid, &amax);
 
