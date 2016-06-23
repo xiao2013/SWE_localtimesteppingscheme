@@ -33,6 +33,10 @@ int main(int argc, char **argv)
     /* for MPI tiles */
     int npx = sqrt(size);    // for making parallel processed tiles, npx is the square length of the tile grid e.g. if there are 9 processors then npx = 3)
     int l_grid = n_grid/npx; // l_grid = local grid, e.g. if n_grid = 50, and npx = 5, then the number of global grid elements per tile is 10 (in one dimension)
+    /* for mpi_subarray */
+    int fullsize[2] = {n_grid, n_grid};
+    int localsize[2] = {l_grid, l_grid};
+    int starts[2] = {0, 0};
     /* create 2D mpi processor virtual topology */
     MPI_Comm mpi_comm_cart, mpi_comm_x, mpi_comm_y;
     int dims[2];
@@ -58,8 +62,9 @@ int main(int argc, char **argv)
 
     /* Initialisation & memory allocation */
     double amax;
-    double *h, *u, *v, *F, *G, *U;
+    double *h, *u, *v, *F, *G, *U, *U_global, *sendArray;
     int xmax, xmin, ymin, ymax;
+
     xmin = 0;
     xmax = 10;
     ymin = n_grid - 20;
@@ -70,13 +75,15 @@ int main(int argc, char **argv)
     // v = malloc(n_grid*n_grid*sizeof(double));
     // F = malloc((n_grid+1)*n_grid*3*sizeof(double));
     // G = malloc((n_grid+1)*n_grid*3*sizeof(double));
-    // U = malloc(n_grid*n_grid*3*sizeof(double));
+    U_global = malloc(n_grid*n_grid*3*sizeof(double));
     h = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     u = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     v = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     F = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     G = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     U = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
+    sendArray = malloc(l_grid*l_grid*3*sizeof(double));
+
 
     for (int x = 1; x < l_grid+1; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
     {
@@ -172,7 +179,19 @@ int main(int argc, char **argv)
         //printf("Time Step = %d, amax = %lf \n", i, amax);
         //printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
         /* write vtk file*/
-
+        if(i % plottingStep == 0 && rank == 0){
+            for (int x = 1; x < l_grid+1; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
+            {
+                for (int y = 1; y < l_grid+1; ++y)
+                {
+                    sendArray[ (x*l_grid + y)*3 ]     = U[ (x*(l_grid + 2) + y)*3 ];
+                    sendArray[ (x*l_grid + y)*3 + 1 ] = U[ (x*(l_grid + 2) + y)*3 + 1 ];
+                    sendArray[ (x*l_grid + y)*3 + 2 ] = U[ (x*(l_grid + 2) + y)*3 + 2 ];
+                }
+            }
+            MPI_Gather( U, l_grid*l_grid*sizeof(double)*3, MPI_DOUBLE, U_global, l_grid*l_grid*sizeof(double)*3, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
+            write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
+        }
     }
 
     /* memory deallocation */
@@ -182,6 +201,8 @@ int main(int argc, char **argv)
     free(F);
     free(G);
     free(U);
+    free(U_global);
+    free(sendArray);
 
     MPI_Finalize();
 }
