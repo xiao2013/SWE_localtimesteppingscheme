@@ -35,8 +35,9 @@ int main(int argc, char **argv)
     int l_grid = n_grid/npx; // l_grid = local grid, e.g. if n_grid = 50, and npx = 5, then the number of global grid elements per tile is 10 (in one dimension)
     /* for mpi_subarray */
     int fullsize[2] = {n_grid, n_grid};
-    int localsize[2] = {l_grid, l_grid};
+    int localsize[2] = {l_grid , l_grid };
     int starts[2] = {0, 0};
+    MPI_Datatype subarrayType, type;
     /* create 2D mpi processor virtual topology */
     MPI_Comm mpi_comm_cart, mpi_comm_x, mpi_comm_y;
     int dims[2];
@@ -75,14 +76,14 @@ int main(int argc, char **argv)
     // v = malloc(n_grid*n_grid*sizeof(double));
     // F = malloc((n_grid+1)*n_grid*3*sizeof(double));
     // G = malloc((n_grid+1)*n_grid*3*sizeof(double));
-    U_global = malloc(n_grid*n_grid*3*sizeof(double));
+    U_global = malloc(n_grid*n_grid*sizeof(double));
     h = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     u = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     v = malloc((l_grid+2)*(l_grid+2)*sizeof(double));
     F = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     G = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     U = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
-    sendArray = malloc(l_grid*l_grid*3*sizeof(double));
+    sendArray = malloc(l_grid*l_grid*sizeof(double));
 
     printf("mex: %d, mey: %d rank: %d\n", mex, mey, rank);
     printf("x: %d, y: %d\n", physx(0, mex, l_grid), physy(0, mey, l_grid));
@@ -194,45 +195,62 @@ int main(int argc, char **argv)
             {
                 for (int y = 0; y < l_grid; ++y)
                 {
-                    if (U[ ((x+1)*(l_grid + 2) + (y+1))*3 ] == 1)
-                    {
-                        // printf("%d\n", rank);s
-                        counter++;
-                    }
-                    sendArray[ (x*l_grid + y)*3 ]     = U[ ((x+1)*(l_grid + 2) + (y+1))*3 ];
-                    sendArray[ (x*l_grid + y)*3 + 1 ] = U[ ((x+1)*(l_grid + 2) + (y+1))*3 + 1 ];
-                    sendArray[ (x*l_grid + y)*3 + 2 ] = U[ ((x+1)*(l_grid + 2) + (y+1))*3 + 2 ];
+                    sendArray[ (x*l_grid + y) ] = h[ ((x+1)*(l_grid + 2) + (y+1)) ];
                 }
             }
+            if (rank == 1)
+            {
+                // write_vtkFile(szProblem, i, l_grid+2, l_grid+2, l_grid+2, cellsize, cellsize, h);
+                write_vtkFile(szProblem, i, l_grid, l_grid, l_grid, cellsize, cellsize, sendArray);
+            }
+            
+            int sendcounts[npx*npx];
+            int displs[npx*npx];
+
+            if (rank == 0) {
+                for (int i=0; i<npx*npx; i++) sendcounts[i] = 1;
+                int disp = 0;
+                for (int i=0; i<npx; i++) {
+                    for (int j=0; j<npx; j++) {
+                        displs[i*npx+j] = disp;
+                        disp += 1;
+                        printf("disp[%d]: %d\n", i*npx+j,displs[i*npx+j]);
+                    }
+                    disp += ((n_grid/npx-1))*npx;
+                }
+            }
+            /* type for global array displacement */
+            MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
+            MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
+            MPI_Type_commit(&subarrayType);
+            MPI_Type_commit(&type);
+            /* type for local array displacement */
+            // MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
+            // MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
+            // MPI_Type_commit(&subarrayType);
             printf("rank: %d counter:%d\n", rank, counter);
-            MPI_Gather( sendArray, l_grid*l_grid*sizeof(double)*3, MPI_DOUBLE, U_global, l_grid*l_grid*sizeof(double)*3, MPI_DOUBLE, 0, MPI_COMM_WORLD); 
+            // MPI_Gather( U, 1, subarrayType, U_global, 1, subarrayType, 0, MPI_COMM_WORLD); 
+            MPI_Gatherv(&(sendArray[0]), l_grid*l_grid,  MPI_DOUBLE, U_global, sendcounts, displs, subarrayType, 0, MPI_COMM_WORLD);
             /* write vtk file*/
             if (rank == 0)
             {
-                int counter_rank0 = 0;
-                for (int x = 0; x < n_grid; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
-                {
-                    for (int y = 0; y < n_grid; ++y)
-                    {
-                        for (int i = 0; i < 3; ++i)
-                        {
-                            if (U_global[ ((x)*(n_grid) + (y))*3 ] == 1)
-                            {
-                                counter_rank0++;
-                            }
-                        }
-
-
-                    }
-                }
-                printf("%d\n", counter_rank0);
+                // int counter_rank0 = 0;
+                // for (int x = 0; x < n_grid; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
+                // {
+                //     for (int y = 0; y < n_grid; ++y)
+                //     {
+                //             if (U_global[ ((x)*(n_grid) + (y)) ] == 1.0)
+                //             {
+                //                 counter_rank0++;
+                //             }
+                //     }
+                // }
+                // printf("%d\n", counter_rank0);
+                write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
             }
-
-            // if( rank == 0){
-            //     printf("ok!\n");
-            //     write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
-            // }
         }
+        MPI_Type_free(&subarrayType);
+        MPI_Type_free(&type);
     }
 
     /* memory deallocation */
