@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     /* initial value set up */
     int cellsize = 1;
-    int n_grid = 50;
+    int n_grid = 40;
     int length = n_grid * cellsize;
     int totalNumberofTimeStep = 1;
     int plottingStep = 1;
@@ -33,6 +33,10 @@ int main(int argc, char **argv)
     /* for MPI tiles */
     int npx = sqrt(size);    // for making parallel processed tiles, npx is the square length of the tile grid e.g. if there are 9 processors then npx = 3)
     int l_grid = n_grid/npx; // l_grid = local grid, e.g. if n_grid = 50, and npx = 5, then the number of global grid elements per tile is 10 (in one dimension)
+
+    // npx = 4/4 = 1
+
+    printf("npx: %i\tn_grid: %i\tl_grid: %i\n", npx, n_grid,l_grid); // @ANDY:debug
     /* for mpi_subarray */
     int fullsize[2] = {n_grid, n_grid};
     int localsize[2] = {l_grid, l_grid};
@@ -84,8 +88,8 @@ int main(int argc, char **argv)
     U = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     sendArray = malloc(l_grid*l_grid*3*sizeof(double));
 
-    printf("mex: %d, mey: %d\n rank: %d\n", mex, mey, rank);
-    printf("l_grid: %d\n", l_grid);
+    //printf("mex: %d, mey: %d\n rank: %d\n", mex, mey, rank);  // @ANDY:debug
+    //printf("l_grid: %d\n", l_grid);                           // @ANDY:debug
     for (int x = 1; x < l_grid+1; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
     {
         for (int y = 1; y < l_grid+1; ++y)
@@ -202,7 +206,10 @@ int main(int argc, char **argv)
                 printf("ok!\n");
                 write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
             }
+
+            //printf("rank number: %i\n",rank);
         }
+        printf("rank number: %i\n",rank);
     }
 
     /* memory deallocation */
