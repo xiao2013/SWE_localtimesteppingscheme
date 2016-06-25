@@ -198,11 +198,11 @@ int main(int argc, char **argv)
                     sendArray[ (x*l_grid + y) ] = h[ ((x+1)*(l_grid + 2) + (y+1)) ];
                 }
             }
-            if (rank == 1)
-            {
-                // write_vtkFile(szProblem, i, l_grid+2, l_grid+2, l_grid+2, cellsize, cellsize, h);
-                write_vtkFile(szProblem, i, l_grid, l_grid, l_grid, cellsize, cellsize, sendArray);
-            }
+            // if (rank == 1)
+            // {
+            //     // write_vtkFile(szProblem, i, l_grid+2, l_grid+2, l_grid+2, cellsize, cellsize, h);
+            //     write_vtkFile(szProblem, i, l_grid, l_grid, l_grid, cellsize, cellsize, sendArray);
+            // }
             
             int sendcounts[npx*npx];
             int displs[npx*npx];
@@ -223,34 +223,17 @@ int main(int argc, char **argv)
             MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
             MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
             MPI_Type_commit(&subarrayType);
-            MPI_Type_commit(&type);
-            /* type for local array displacement */
-            // MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
-            // MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
-            // MPI_Type_commit(&subarrayType);
+            
             printf("rank: %d counter:%d\n", rank, counter);
-            // MPI_Gather( U, 1, subarrayType, U_global, 1, subarrayType, 0, MPI_COMM_WORLD); 
+            // MPI_Gather( &(sendArray[0]), l_grid*l_grid, MPI_DOUBLE, U_global, 1, subarrayType, 0, MPI_COMM_WORLD); 
             MPI_Gatherv(&(sendArray[0]), l_grid*l_grid,  MPI_DOUBLE, U_global, sendcounts, displs, subarrayType, 0, MPI_COMM_WORLD);
             /* write vtk file*/
             if (rank == 0)
             {
-                // int counter_rank0 = 0;
-                // for (int x = 0; x < n_grid; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
-                // {
-                //     for (int y = 0; y < n_grid; ++y)
-                //     {
-                //             if (U_global[ ((x)*(n_grid) + (y)) ] == 1.0)
-                //             {
-                //                 counter_rank0++;
-                //             }
-                //     }
-                // }
-                // printf("%d\n", counter_rank0);
                 write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
             }
         }
         MPI_Type_free(&subarrayType);
-        MPI_Type_free(&type);
     }
 
     /* memory deallocation */
