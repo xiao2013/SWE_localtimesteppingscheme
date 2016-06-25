@@ -60,7 +60,10 @@ int main(int argc, char **argv)
     /* Rank along X, Y directions */
     MPI_Comm_rank (mpi_comm_x, &mex);
     MPI_Comm_rank (mpi_comm_y, &mey);
-
+    /* type for global array displacement */
+    MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
+    MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
+    MPI_Type_commit(&subarrayType);
     /* Initialisation & memory allocation */
     double amax;
     double *h, *u, *v, *F, *G, *U, *U_global, *sendArray;
@@ -146,6 +149,21 @@ int main(int argc, char **argv)
             }
         }
     }
+    // calculate displacement before for loop dicrease computational effort
+    int sendcounts[npx*npx];
+    int displs[npx*npx];
+
+    if (rank == 0) {
+        for (int i=0; i<npx*npx; i++) sendcounts[i] = 1;
+        int disp = 0;
+        for (int i=0; i<npx; i++) {
+            for (int j=0; j<npx; j++) {
+                displs[i*npx+j] = disp;
+                disp += 1;
+            }
+            disp += ((n_grid/npx-1))*npx;
+        }
+    }
 
     for (int i = 0; i < totalNumberofTimeStep; ++i)
     {
@@ -191,6 +209,7 @@ int main(int argc, char **argv)
        
         if (i % plottingStep == 0)
         {
+            /* initialise send buffer */
             for (int x = 0; x < l_grid; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
             {
                 for (int y = 0; y < l_grid; ++y)
@@ -203,29 +222,7 @@ int main(int argc, char **argv)
             //     // write_vtkFile(szProblem, i, l_grid+2, l_grid+2, l_grid+2, cellsize, cellsize, h);
             //     write_vtkFile(szProblem, i, l_grid, l_grid, l_grid, cellsize, cellsize, sendArray);
             // }
-            
-            int sendcounts[npx*npx];
-            int displs[npx*npx];
-
-            if (rank == 0) {
-                for (int i=0; i<npx*npx; i++) sendcounts[i] = 1;
-                int disp = 0;
-                for (int i=0; i<npx; i++) {
-                    for (int j=0; j<npx; j++) {
-                        displs[i*npx+j] = disp;
-                        disp += 1;
-                        printf("disp[%d]: %d\n", i*npx+j,displs[i*npx+j]);
-                    }
-                    disp += ((n_grid/npx-1))*npx;
-                }
-            }
-            /* type for global array displacement */
-            MPI_Type_create_subarray(2, fullsize, localsize, starts, MPI_ORDER_C, MPI_DOUBLE, &type);
-            MPI_Type_create_resized(type, 0, l_grid*sizeof(double), &subarrayType);
-            MPI_Type_commit(&subarrayType);
-            
-            printf("rank: %d counter:%d\n", rank, counter);
-            // MPI_Gather( &(sendArray[0]), l_grid*l_grid, MPI_DOUBLE, U_global, 1, subarrayType, 0, MPI_COMM_WORLD); 
+            /* gather all tiles in root branch */
             MPI_Gatherv(&(sendArray[0]), l_grid*l_grid,  MPI_DOUBLE, U_global, sendcounts, displs, subarrayType, 0, MPI_COMM_WORLD);
             /* write vtk file*/
             if (rank == 0)
