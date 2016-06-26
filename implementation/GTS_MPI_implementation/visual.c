@@ -44,7 +44,7 @@ void write_vtkFile( const char *szProblem,int timeStepNumber, int gridsize, int 
 	fprintf(fp, "LOOKUP_TABLE default \n");
 	for(int x = 0; x < imax; x++) {
 		for(int y = 0; y < jmax; y++) {
-			fprintf(fp, "%f\n", U[(x*gridsize + y)*3]);
+			fprintf(fp, "%f\n", U[(x*gridsize + y)*1]);
 		}
 	}
 
