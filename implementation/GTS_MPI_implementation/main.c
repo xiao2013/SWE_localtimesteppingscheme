@@ -13,8 +13,9 @@ int main(int argc, char **argv)
 {
 
     /* initialise MPI */
+    int x, y;
     int size, rank;
-    int mex, mey;
+    int mex, mey;  // (0,0) in (x,y), is at the bottom left of the grid of tiles, whre tiles are processors  
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -42,6 +43,7 @@ int main(int argc, char **argv)
     int localsize[2] = {l_grid , l_grid };
     int starts[2] = {0, 0};
     MPI_Datatype subarrayType, type;
+
     /* create 2D mpi processor virtual topology */
     MPI_Comm mpi_comm_cart, mpi_comm_x, mpi_comm_y;
     int dims[2];
@@ -91,6 +93,16 @@ int main(int argc, char **argv)
     G = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     U = malloc((l_grid+2)*(l_grid+2)*3*sizeof(double));
     sendArray = malloc(l_grid*l_grid*sizeof(double));
+
+    /* initiate the send/recv buffers */
+    double sendVectorToRight[l_grid*3];   // @TODO: maybe we do not need the diagonal corners, so maybe we need to l_grid+2 for corners?, i.e. change the @TODO:corners
+    double sendVectorToLeft[l_grid*3];
+    double sendVectorToTop[l_grid*3];
+    double sendVectorToBottom[l_grid*3];
+    double recvVectorFromRight[l_grid*3];
+    double recvVectorFromLeft[l_grid*3];
+    double recvVectorFromTop[l_grid*3];
+    double recvVectorFromBottom[l_grid*3];
 
     printf("mex: %d, mey: %d rank: %d\n", mex, mey, rank);
     printf("x: %d, y: %d\n", physx(0, mex, l_grid), physy(0, mey, l_grid));
@@ -153,7 +165,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    // calculate displacement before for loop dicrease computational effort
+    // calculate displacement before for loop dicrease computational effort, to properly organise the tiles into global grid
     int sendcounts[npx*npx];
     int displs[npx*npx];
 
@@ -196,15 +208,98 @@ int main(int argc, char **argv)
         //         }
         // }
 
-        // //tile creation
+        /* Ghost layers "halo": transfer data into halo prior to computation */
+        // @pseudo: copy stuff into sendbuffer
+        // @pseudo:1 ^ data in the horizontal direction first
+        // @pseudo:2 ^ verticle
 
-        // /* compute fluxes*/
-        // computeFlux(U, F, G, n_grid, &amax);
+        if(mex != (npx-1))    // mex=(npx-1) are the processors on the rightermost boundary (i.e. cannot send to the right, or recv from right)            
+        {     
+            x = l_grid;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                sendVectorToRight[y]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  // @TODO:corners
+                sendVectorToRight[y + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ]; 
+                sendVectorToRight[y + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ]; 
+            }
 
+        }
 
+        if(mex != 0)    
+        {     
+            x = 1;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                sendVectorToLeft[y]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  
+                sendVectorToLeft[y + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ];   
+                sendVectorToLeft[y + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2];   
+            }            
+        }
 
-        // /* updating the fluxes*/
-        // updateFlux(U, F, G, n_grid, dt_dx);
+        if(mey != (npx-1))    
+        {     
+            y = l_grid;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
+                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
+                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
+            }
+        }
+
+        if(mey != 0)    
+        {     
+            y = 1;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
+                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ];    
+                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
+            }            
+        }
+
+        // @pseudo: send sendbuffer into halo        
+        // @pseudo:1 send data in the horizontal direction first
+        if(mex != (npx-1))    // mex=(npx-1) are the processors on the rightermost boundary (i.e. cannot send to the right, or recv from right)            
+        {     
+            // MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+            MPI_Send( &(sendVectorToRight[0]), l_grid*3, MPI_DOUBLE, (mey+(mex+1)*npx), 1, MPI_COMM_WORLD);
+            //                                                      ^ this gives you the target rank, given the mex and mey
+            //                                                                        ^ tag: e.g. u/ to make a correspondence between a send and a recv, a send passes data only to a recv with the same tag 
+            MPI_Recv( &(recvVectorFromRight[0]), l_grid*3, MPI_DOUBLE, (mey+(mex+1)*npx), 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            //                                                        ^ this gives you the source rank, given the mex and mey, i.e. which rank to recv data from
+        }
+
+        if(mex != 0)    
+        {     
+            MPI_Send( &(sendVectorToLeft[0]), l_grid*3, MPI_DOUBLE, (mey+(mex-1)*npx), 2, MPI_COMM_WORLD);
+            MPI_Recv( &(recvVectorFromLeft[0]), l_grid*3, MPI_DOUBLE, (mey+(mex-1)*npx), 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+
+        // @pseudo:2 ^ verticle
+
+        if(mey != (npx-1))    
+        {     
+            MPI_Send( &(sendVectorToTop[0]), l_grid*3, MPI_DOUBLE, (mey+1+mex*npx), 3, MPI_COMM_WORLD);
+            MPI_Recv( &(recvVectorFromTop[0]), l_grid*3, MPI_DOUBLE, (mey+1+mex*npx), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);        
+        }
+
+        if(mey != 0)    
+        {     
+            MPI_Send( &(sendVectorToBottom[0]), l_grid*3, MPI_DOUBLE, (mey-1+(mex)*npx), 4, MPI_COMM_WORLD);
+            MPI_Recv( &(recvVectorFromBottom[0]), l_grid*3, MPI_DOUBLE, (mey-1+(mex)*npx), 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);        
+        }
+
+        // @pseudo: copy stuff from recvbuffers into the U grid
+        // @pseudo:1 ^ data in the horizontal direction first
+        // @pseudo:2 ^ verticle
+   
+
+        /* compute fluxes*/
+        computeFlux(U, F, G, n_grid, &amax);
+
+        /* updating the fluxes*/
+        updateFlux(U, F, G, n_grid, dt_dx);
 
         //printf("Time Step = %d, amax = %lf \n", i, amax);
         //printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
