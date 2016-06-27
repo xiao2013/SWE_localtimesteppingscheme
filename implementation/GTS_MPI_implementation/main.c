@@ -241,9 +241,9 @@ int main(int argc, char **argv)
             y = l_grid;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
-                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
-                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
+                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
+                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
+                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
             }
         }
 
@@ -252,9 +252,9 @@ int main(int argc, char **argv)
             y = 1;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
-                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ];    
-                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
+                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
+                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1];    
+                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
             }            
         }
 
@@ -293,7 +293,50 @@ int main(int argc, char **argv)
         // @pseudo: copy stuff from recvbuffers into the U grid
         // @pseudo:1 ^ data in the horizontal direction first
         // @pseudo:2 ^ verticle
-   
+        if(mex != (npx-1))    // mex=(npx-1) are the processors on the rightermost boundary (i.e. cannot send to the right, or recv from right)            
+        {     
+            x = l_grid+1;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromRight[y];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromRight[y + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromRight[y + 2]; 
+            }
+
+        }
+
+        if(mex != 0)    
+        {     
+            x = 0;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromLeft[y];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromLeft[y + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromLeft[y + 2]; 
+            }            
+        }
+
+        if(mey != (npx-1))    
+        {     
+            y = l_grid+1;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromTop[y];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromTop[y + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromTop[y + 2]; 
+            }
+        }
+
+        if(mey != 0)    
+        {     
+            y = 0;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromBottom[y];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromBottom[y + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromBottom[y + 2]; 
+            }            
+        }
 
         /* compute fluxes*/
         computeFlux(U, F, G, n_grid, &amax);
