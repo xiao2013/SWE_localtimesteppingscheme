@@ -191,6 +191,29 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < totalNumberofTimeStep; ++i)
     {
+        // // plot before sending
+        // if (rank == 1)
+        // {
+        //     x = 1;
+        //     for (int y = 1; y < l_grid+1; ++y)
+        //     {
+        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+        //     }
+        //     printf("\n");
+        // }
+
+        // // plot before sending
+        // if (rank == 0)
+        // {
+        //     x = l_grid+1;
+        //     for (int y = 1; y < l_grid+1; ++y)
+        //     {
+        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+        //     }
+        //     printf("\n");
+        // }
+
+        MPI_Barrier(MPI_COMM_WORLD);
     // for (int i = 0; i < 3; ++i)
     // {
     //  for (int x = 0; x < n_grid; ++x)
@@ -226,14 +249,11 @@ int main(int argc, char **argv)
             x = l_grid;
             for (int y = 0; y < l_grid; ++y)
             {
-                //printf("iteration: %i\n",y);
-                //printf("debug: %i\n",debug);
-                //debug = debug + 1;
                 debug = 1;
                 if (debug==1){ printf("\trank: %i\t,time: %i\t,debug: %i\t, l_grid: %i\t, y: %i\n",rank,i,debug,l_grid,y); };  // @ANDY:debug:1 @debug1
-                sendVectorToRight[y]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  // @TODO:corners
-                sendVectorToRight[y + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ]; 
-                sendVectorToRight[y + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ]; 
+                sendVectorToRight[y*3]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  // @TODO:corners
+                sendVectorToRight[y*3 + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ]; 
+                sendVectorToRight[y*3 + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ]; 
             }
 
         }
@@ -243,9 +263,9 @@ int main(int argc, char **argv)
             x = 1;
             for (int y = 0; y < l_grid; ++y)
             {
-                sendVectorToLeft[y]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  
-                sendVectorToLeft[y + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ];   
-                sendVectorToLeft[y + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2];   
+                sendVectorToLeft[y*3]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  
+                sendVectorToLeft[y*3 + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ];   
+                sendVectorToLeft[y*3 + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2];   
             }            
         }
 
@@ -254,20 +274,20 @@ int main(int argc, char **argv)
             y = l_grid;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
-                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
-                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
+                sendVectorToTop[x*3]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
+                sendVectorToTop[x*3 + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
+                sendVectorToTop[x*3 + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
             }
         }
 
         if(mey != 0)    
-        {     
+        {
             y = 1;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
-                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1];    
-                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
+                sendVectorToBottom[x*3]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
+                sendVectorToBottom[x*3 + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1];    
+                sendVectorToBottom[x*3 + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
             }            
         }
 
@@ -292,17 +312,17 @@ int main(int argc, char **argv)
         // @pseudo:2 ^ verticle
 
         if(mey != (npx-1))    
-        {     
+        {
             MPI_Send( &(sendVectorToTop[0]), l_grid*3, MPI_DOUBLE, (mey+1+mex*npx), 3, MPI_COMM_WORLD);
             MPI_Recv( &(recvVectorFromTop[0]), l_grid*3, MPI_DOUBLE, (mey+1+mex*npx), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);        
         }
 
-        if(mey != 0)    
-        {     
+        if(mey != 0)
+        {
             MPI_Send( &(sendVectorToBottom[0]), l_grid*3, MPI_DOUBLE, (mey-1+(mex)*npx), 4, MPI_COMM_WORLD);
             MPI_Recv( &(recvVectorFromBottom[0]), l_grid*3, MPI_DOUBLE, (mey-1+(mex)*npx), 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);        
         }
-
+        MPI_Barrier(MPI_COMM_WORLD);
         // @pseudo: copy stuff from recvbuffers into the U grid
         // @pseudo:1 ^ data in the horizontal direction first
         // @pseudo:2 ^ verticle
@@ -311,9 +331,9 @@ int main(int argc, char **argv)
             x = l_grid+1;
             for (int y = 0; y < l_grid; ++y)
             {
-                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromRight[y];  // @TODO:corners
-                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromRight[y + 1]; 
-                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromRight[y + 2]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromRight[y*3];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromRight[y*3 + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromRight[y*3 + 2]; 
             }
         }
 
@@ -322,9 +342,9 @@ int main(int argc, char **argv)
             x = 0;
             for (int y = 0; y < l_grid; ++y)
             {
-                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromLeft[y];  // @TODO:corners
-                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromLeft[y + 1]; 
-                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromLeft[y + 2]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromLeft[y*3];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromLeft[y*3 + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromLeft[y*3 + 2]; 
             }            
         }
 
@@ -333,9 +353,9 @@ int main(int argc, char **argv)
             y = l_grid+1;
             for (int x = 0; x < l_grid; ++x)
             {
-                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromTop[y];  // @TODO:corners
-                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromTop[y + 1]; 
-                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromTop[y + 2]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromTop[x*3];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromTop[x*3 + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromTop[x*3 + 2]; 
             }
         }
 
@@ -344,12 +364,22 @@ int main(int argc, char **argv)
             y = 0;
             for (int x = 0; x < l_grid; ++x)
             {
-                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromBottom[y];  // @TODO:corners
-                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromBottom[y + 1]; 
-                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromBottom[y + 2]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromBottom[x*3];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromBottom[x*3 + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromBottom[x*3 + 2]; 
             }            
         }
 
+        // // plot after sending
+        // if (rank == 0)
+        // {
+        //     x = l_grid+1;
+        //     for (int y = 1; y < l_grid+1; ++y)
+        //     {
+        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+        //     }
+        //     printf("\n");
+        // }
         /* compute fluxes*/
         computeFlux(U, F, G, l_grid, &amax, mex, mey, npx);
 
