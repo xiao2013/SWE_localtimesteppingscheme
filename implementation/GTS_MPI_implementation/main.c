@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     int cellsize = 1;
     int n_grid = 50;
     int length = n_grid * cellsize;
-    int totalNumberofTimeStep = 1;
+    int totalNumberofTimeStep = 100;
     int plottingStep = 1;
     double dt = 0.1;
     double dt_dx = dt/cellsize;
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 
     for (int x = 1; x < l_grid+2; ++x)
     {
-        for (int y = 1; y < l_grid+1; ++y)
+        for (int y = 1; y < l_grid+2; ++y)
         {
             for (int i = 0; i < 3; ++i)
             {
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    for (int x = 1; x < l_grid+1; ++x)
+    for (int x = 1; x < l_grid+2; ++x)
     {
         for (int y = 1; y < l_grid+2; ++y)
         {
@@ -241,9 +241,9 @@ int main(int argc, char **argv)
             y = l_grid;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
-                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
-                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
+                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ]; 
+                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ]; 
+                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ]; 
             }
         }
 
@@ -252,9 +252,9 @@ int main(int argc, char **argv)
             y = 1;
             for (int x = 0; x < l_grid; ++x)
             {
-                sendVectorToTop[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
-                sendVectorToTop[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ];    
-                sendVectorToTop[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
+                sendVectorToBottom[x]     = U[ ((x+1)*(l_grid+2) + (y))*3 ];    
+                sendVectorToBottom[x + 1] = U[ ((x+1)*(l_grid+2) + (y))*3 + 1];    
+                sendVectorToBottom[x + 2] = U[ ((x+1)*(l_grid+2) + (y))*3 + 2];    
             }            
         }
 
@@ -293,13 +293,55 @@ int main(int argc, char **argv)
         // @pseudo: copy stuff from recvbuffers into the U grid
         // @pseudo:1 ^ data in the horizontal direction first
         // @pseudo:2 ^ verticle
-   
+        if(mex != (npx-1))    // mex=(npx-1) are the processors on the rightermost boundary (i.e. cannot send to the right, or recv from right)            
+        {     
+            x = l_grid+1;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromRight[y];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromRight[y + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromRight[y + 2]; 
+            }
+        }
+
+        if(mex != 0)    
+        {     
+            x = 0;
+            for (int y = 0; y < l_grid; ++y)
+            {
+                U[ ((x)*(l_grid+2) + (y+1))*3 ]     = recvVectorFromLeft[y];  // @TODO:corners
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromLeft[y + 1]; 
+                U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromLeft[y + 2]; 
+            }            
+        }
+
+        if(mey != (npx-1))    
+        {     
+            y = l_grid+1;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromTop[y];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromTop[y + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromTop[y + 2]; 
+            }
+        }
+
+        if(mey != 0)    
+        {     
+            y = 0;
+            for (int x = 0; x < l_grid; ++x)
+            {
+                U[ ((x+1)*(l_grid+2) + (y))*3 ]     = recvVectorFromBottom[y];  // @TODO:corners
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 1 ] = recvVectorFromBottom[y + 1]; 
+                U[ ((x+1)*(l_grid+2) + (y))*3 + 2 ] = recvVectorFromBottom[y + 2]; 
+            }            
+        }
 
         /* compute fluxes*/
-        computeFlux(U, F, G, n_grid, &amax);
+        computeFlux(U, F, G, l_grid, &amax, mex, mey, npx);
 
         /* updating the fluxes*/
-        updateFlux(U, F, G, n_grid, dt_dx);
+        updateFlux(U, F, G, l_grid, dt_dx);
 
         //printf("Time Step = %d, amax = %lf \n", i, amax);
         //printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
@@ -313,7 +355,7 @@ int main(int argc, char **argv)
             {
                 for (int y = 0; y < l_grid; ++y)
                 {
-                    sendArray[ (x*l_grid + y) ] = h[ ((x+1)*(l_grid + 2) + (y+1)) ];
+                    sendArray[ (x*l_grid + y) ] = U[ ((x+1)*(l_grid + 2) + (y+1))*3 ];
                 }
             }
             // if (rank == 1)
@@ -329,11 +371,9 @@ int main(int argc, char **argv)
                 write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
             }
         }
-
-
-        MPI_Type_free(&subarrayType);
-
     }
+    // free mpi data type
+    MPI_Type_free(&subarrayType);
 
     /* memory deallocation */
     free(h);
