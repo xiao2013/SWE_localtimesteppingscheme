@@ -48,7 +48,7 @@ void updateFlux(double *U, double *F, double *G, int *levelc, int n_grid, double
 	{
 		for (int y = 0; y < n_grid; ++y)
 		{
-			if (levelc[x*n_grid + y] <= level)
+			if (levelc[x*n_grid + y] <= level) // @ANDY: if the current grid point needs to be updated (i.e. sufficiently small local dt) then it will be updated. Grid points that have large dt values would not need to be calculated as frequently as points with small local dt. 
 			{
 				// printf("[%d][%d]\n", x, y);
 				for (int i = 0; i < 3; ++i)

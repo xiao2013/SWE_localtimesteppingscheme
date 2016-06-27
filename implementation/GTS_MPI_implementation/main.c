@@ -12,17 +12,17 @@
 int main(int argc, char **argv)
 {
 
-    /* initialise MPI */
+    /* initialise */
     int x, y;
     int size, rank;
-    int mex, mey;  // (0,0) in (x,y), is at the bottom left of the grid of tiles, whre tiles are processors  
+    int mex, mey;  // (0,0) in (x,y), is at the bottom left of the grid of tiles, whre tiles are processors
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);   
 
     /* initial value set up */
     int cellsize = 1;
-    int n_grid = 40;
+    int n_grid = 50;
     int length = n_grid * cellsize;
     int totalNumberofTimeStep = 1;
     int plottingStep = 1;
