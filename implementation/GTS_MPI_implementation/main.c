@@ -59,10 +59,10 @@ int main(int argc, char **argv)
     /* Build the sub-communicators along X and Y */
     coords[0] = 1;
     coords[1] = 0;
-    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_x);
+    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_y);
     coords[0] = 0;
     coords[1] = 1;
-    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_y);
+    MPI_Cart_sub (mpi_comm_cart, coords, &mpi_comm_x);
     /* Rank along X, Y directions */
     MPI_Comm_rank (mpi_comm_x, &mex);
     MPI_Comm_rank (mpi_comm_y, &mey);
