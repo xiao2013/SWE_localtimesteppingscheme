@@ -339,10 +339,10 @@ int main(int argc, char **argv)
         }
 
         /* compute fluxes*/
-        computeFlux(U, F, G, n_grid, &amax);
+        computeFlux(U, F, G, l_grid, &amax);
 
         /* updating the fluxes*/
-        updateFlux(U, F, G, n_grid, dt_dx);
+        updateFlux(U, F, G, l_grid, dt_dx);
 
         //printf("Time Step = %d, amax = %lf \n", i, amax);
         //printf("Time Step = %d, Courant Number = %lf \n", i, amax * dt_dx* 2 );
