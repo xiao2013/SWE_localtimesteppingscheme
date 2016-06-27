@@ -13,6 +13,7 @@ int main(int argc, char **argv)
 {
 
     /* initialise */
+    int debug = 0;  //@ANDY:debug @debug
     int x, y;
     int size, rank;
     int mex, mey;  // (0,0) in (x,y), is at the bottom left of the grid of tiles, whre tiles are processors
@@ -22,9 +23,9 @@ int main(int argc, char **argv)
 
     /* initial value set up */
     int cellsize = 1;
-    int n_grid = 50;
+    int n_grid = 4;
     int length = n_grid * cellsize;
-    int totalNumberofTimeStep = 100;
+    int totalNumberofTimeStep = 2;
     int plottingStep = 1;
     double dt = 0.1;
     double dt_dx = dt/cellsize;
@@ -104,21 +105,28 @@ int main(int argc, char **argv)
     double recvVectorFromTop[l_grid*3];
     double recvVectorFromBottom[l_grid*3];
 
-    printf("mex: %d, mey: %d rank: %d\n", mex, mey, rank);
-    printf("x: %d, y: %d\n", physx(0, mex, l_grid), physy(0, mey, l_grid));
-    printf("l_grid: %d\n", l_grid);
-    for (int x = 1; x < l_grid+1; ++x) // so x = 0 and x = l_grid+2 are unallocated "ghost layers" 
+    /* Initiate the shockwave (water height */    // seed a shockwave by raising the height of water at bottom right corner of the grid
+    //printf("mex: %d, mey: %d rank: %d\n", mex, mey, rank);  // @andy:debug:2210
+    //printf("x: %d, y: %d\n", physx(0, mex, l_grid), physy(0, mey, l_grid)); // @andy:debug:2210
+    //printf("l_grid: %d\n", l_grid); // @andy:debug:2210
+
+    for (int x = 1; x < l_grid+1; ++x) // x = 0 and x = l_grid+2 are unallocated "ghost layers", we skip these points by starting at x=1 until x=grid+1
     {
         for (int y = 1; y < l_grid+1; ++y)
         {
-            h[x*(l_grid+2) + y] = 0.1;
-            u[x*(l_grid+2) + y] = 0.0;
-            v[x*(l_grid+2) + y] = 0.0;
-            U[ (x*(l_grid+2) + y)*3]     = h[x*(l_grid+2) + y];
-            U[ (x*(l_grid+2) + y)*3 + 1] = u[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
-            U[ (x*(l_grid+2) + y)*3 + 2] = v[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
+            // if (            // if (x<4 && y<4){
+            //     printf("ANDY: y: %i, x: %i\n", y, x);    
+            // }x<4 && y<4){
+            //     printf("ANDY: y: %i, x: %i\n", y, x);    
+            // }
+            h[x*(l_grid+2)  + y] = 0.1;
+            u[x*(l_grid+2)  + y] = 0.0;
+            v[x*(l_grid+2)  + y] = 0.0;
+            U[(x*(l_grid+2) + y)*3]     = h[x*(l_grid+2) + y];
+            U[(x*(l_grid+2) + y)*3 + 1] = u[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
+            U[(x*(l_grid+2) + y)*3 + 2] = v[x*(l_grid+2) + y] * h[x*(l_grid+2) + y];
             /* initialise the shock wave by lifting up parts of the water */
-            if (physx(x, mex, (l_grid)) < (xmax+1) 
+            if (   physx(x, mex, (l_grid)) < (xmax+1) 
                 && physx(x, mex, (l_grid)) > (xmin) 
                 && physy(y, mey, (l_grid)) < (ymax+1)
                 && physy(y, mey, (l_grid)) > (ymin))
@@ -214,10 +222,15 @@ int main(int argc, char **argv)
         // @pseudo:2 ^ verticle
 
         if(mex != (npx-1))    // mex=(npx-1) are the processors on the rightermost boundary (i.e. cannot send to the right, or recv from right)            
-        {     
+        {
             x = l_grid;
             for (int y = 0; y < l_grid; ++y)
             {
+                //printf("iteration: %i\n",y);
+                //printf("debug: %i\n",debug);
+                //debug = debug + 1;
+                debug = 1;
+                if (debug==1){ printf("\trank: %i\t,time: %i\t,debug: %i\t, l_grid: %i\t, y: %i\n",rank,i,debug,l_grid,y); };  // @ANDY:debug:1 @debug1
                 sendVectorToRight[y]     = U[ ((x)*(l_grid+2) + (y+1))*3 ];  // @TODO:corners
                 sendVectorToRight[y + 1] = U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ]; 
                 sendVectorToRight[y + 2] = U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ]; 
