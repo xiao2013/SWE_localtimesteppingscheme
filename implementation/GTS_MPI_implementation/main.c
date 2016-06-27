@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     int cellsize = 1;
     int n_grid = 50;
     int length = n_grid * cellsize;
-    int totalNumberofTimeStep = 1;
+    int totalNumberofTimeStep = 100;
     int plottingStep = 1;
     double dt = 0.1;
     double dt_dx = dt/cellsize;
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 
     for (int x = 1; x < l_grid+2; ++x)
     {
-        for (int y = 1; y < l_grid+1; ++y)
+        for (int y = 1; y < l_grid+2; ++y)
         {
             for (int i = 0; i < 3; ++i)
             {
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    for (int x = 1; x < l_grid+1; ++x)
+    for (int x = 1; x < l_grid+2; ++x)
     {
         for (int y = 1; y < l_grid+2; ++y)
         {
@@ -302,7 +302,6 @@ int main(int argc, char **argv)
                 U[ ((x)*(l_grid+2) + (y+1))*3 + 1 ] = recvVectorFromRight[y + 1]; 
                 U[ ((x)*(l_grid+2) + (y+1))*3 + 2 ] = recvVectorFromRight[y + 2]; 
             }
-
         }
 
         if(mex != 0)    
@@ -356,7 +355,7 @@ int main(int argc, char **argv)
             {
                 for (int y = 0; y < l_grid; ++y)
                 {
-                    sendArray[ (x*l_grid + y) ] = h[ ((x+1)*(l_grid + 2) + (y+1)) ];
+                    sendArray[ (x*l_grid + y) ] = U[ ((x+1)*(l_grid + 2) + (y+1))*3 ];
                 }
             }
             // if (rank == 1)
@@ -372,11 +371,9 @@ int main(int argc, char **argv)
                 write_vtkFile(szProblem, i, length, n_grid, n_grid, cellsize, cellsize, U_global);
             }
         }
-
-
-        MPI_Type_free(&subarrayType);
-
     }
+    // free mpi data type
+    MPI_Type_free(&subarrayType);
 
     /* memory deallocation */
     free(h);
