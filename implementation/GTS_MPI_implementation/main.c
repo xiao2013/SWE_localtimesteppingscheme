@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
     /* initial value set up */
     int cellsize = 1;
-    int n_grid = 40;
+    int n_grid = 50;
     int length = n_grid * cellsize;
     int totalNumberofTimeStep = 1;
     int plottingStep = 1;
@@ -339,7 +339,7 @@ int main(int argc, char **argv)
         }
 
         /* compute fluxes*/
-        computeFlux(U, F, G, l_grid, &amax);
+        computeFlux(U, F, G, l_grid, &amax, mex, mey, npx);
 
         /* updating the fluxes*/
         updateFlux(U, F, G, l_grid, dt_dx);
