@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     int cellsize = 1;
     int n_grid = 50;
     int length = n_grid * cellsize;
-    int totalNumberofTimeStep = 100;
+    int totalNumberofTimeStep = 1000;
     int plottingStep = 1;
     double dt = 0.1;
     double dt_dx = dt/cellsize;
@@ -183,27 +183,27 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < totalNumberofTimeStep; ++i)
     {
-        // // plot before sending
-        // if (rank == 1)
-        // {
-        //     x = 1;
-        //     for (int y = 1; y < l_grid+1; ++y)
-        //     {
-        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
-        //     }
-        //     printf("\n");
-        // }
+        // plot before sending
+        if (rank == 1 && i == 10)
+        {
+            y = 1;
+            for (int x = 1; x < l_grid+1; ++x)
+            {
+                printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+            }
+            printf("\n");
+        }
 
-        // // plot before sending
-        // if (rank == 0)
-        // {
-        //     x = l_grid+1;
-        //     for (int y = 1; y < l_grid+1; ++y)
-        //     {
-        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
-        //     }
-        //     printf("\n");
-        // }
+        // plot before sending
+        if (rank == 0 && i == 10)
+        {
+            y = l_grid+1;
+            for (int x = 1; x < l_grid+1; ++x)
+            {
+                printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+            }
+            printf("\n");
+        }
 
         MPI_Barrier(MPI_COMM_WORLD);
     // for (int i = 0; i < 3; ++i)
@@ -360,16 +360,16 @@ int main(int argc, char **argv)
             }            
         }
 
-        // // plot after sending
-        // if (rank == 0)
-        // {
-        //     x = l_grid+1;
-        //     for (int y = 1; y < l_grid+1; ++y)
-        //     {
-        //         printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
-        //     }
-        //     printf("\n");
-        // }
+        // plot after sending
+        if (rank == 0 && i == 10)
+        {
+            y = l_grid+1;
+            for (int x = 1; x < l_grid+1; ++x)
+            {
+                printf("%lf ", U[ ((x)*(l_grid+2) + (y))*3 ]);
+            }
+            printf("\n");
+        }
         /* compute fluxes*/
         computeFlux(U, F, G, l_grid, &amax, mex, mey, npx);
 

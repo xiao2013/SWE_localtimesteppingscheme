@@ -52,7 +52,7 @@ void computeFlux(double *U, double *F, double *G, int n_grid, double *maxValue, 
 	}
 	else // mex == 0
 	{
-		for (int x = 2; x < n_grid+1; ++x)
+		for (int x = 2; x <= n_grid+1; ++x)
 		{
 			for (int y = 1; y < n_grid+1; ++y)
 			{
@@ -145,7 +145,7 @@ void computeFlux(double *U, double *F, double *G, int n_grid, double *maxValue, 
 	if (mey == 0)
 	{
 
-		for (int y = 2; y < n_grid+1; ++y)
+		for (int y = 2; y <= n_grid+1; ++y)
 		{
 			// @reminder: MPI the element indexed by the current y value (y=0) was already present from initiation of the tiles in the buffer column
 			for (int x = 1; x < n_grid+1; ++x)
