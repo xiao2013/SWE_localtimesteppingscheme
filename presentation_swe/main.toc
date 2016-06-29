@@ -13,4 +13,5 @@
 \beamer@subsectionintoc {4}{1}{Shallow Water Equations}{31}{0}{4}
 \beamer@subsectionintoc {4}{2}{Accuracy}{35}{0}{4}
 \beamer@subsectionintoc {4}{3}{Benchmark}{37}{0}{4}
-\beamer@sectionintoc {5}{References}{38}{0}{5}
+\beamer@subsectionintoc {4}{4}{MPI Speedup}{38}{0}{4}
+\beamer@sectionintoc {5}{References}{39}{0}{5}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.2.5)  29 JUN 2016 19:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.2.5)  29 JUN 2016 20:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -837,6 +837,9 @@ LaTeX Warning: Label `fig:awesome_image' multiply defined.
 
 LaTeX Warning: Label `fig:awesome_image' multiply defined.
 
+
+LaTeX Warning: Label `fig:awesome_image' multiply defined.
+
 )
 \openout1 = `main.aux'.
 
@@ -1081,7 +1084,7 @@ LaTeX Font Info:    Font shape `OT1/phv/b/it' in size <6> not available
 ]
 [16
 
-] <cell_value.png, id=607, 343.2825pt x 318.18875pt>
+] <cell_value.png, id=616, 343.2825pt x 318.18875pt>
 File: cell_value.png Graphic file (type png)
  <use cell_value.png>
 Package pdftex.def Info: cell_value.png used on input line 229.
@@ -1094,14 +1097,14 @@ Package pdftex.def Info: cell_value.png used on input line 229.
 ] [19
 
 ]
-<LTS_buffer.png, id=693, 631.35875pt x 256.96pt>
+<LTS_buffer.png, id=702, 631.35875pt x 256.96pt>
 File: LTS_buffer.png Graphic file (type png)
  <use LTS_buffer.png>
 Package pdftex.def Info: LTS_buffer.png used on input line 258.
 (pdftex.def)             Requested size: 342.2953pt x 139.3131pt.
  [20
 
- <./LTS_buffer.png>] <LTS_scheme.png, id=723, 514.92375pt x 264.99pt>
+ <./LTS_buffer.png>] <LTS_scheme.png, id=732, 514.92375pt x 264.99pt>
 File: LTS_scheme.png Graphic file (type png)
 
 <use LTS_scheme.png>
@@ -1113,7 +1116,7 @@ Overfull \vbox (1.2019pt too high) detected at line 266
 
 [21
 
- <./LTS_scheme.png>] <GTS_scheme.png, id=753, 519.9425pt x 258.9675pt>
+ <./LTS_scheme.png>] <GTS_scheme.png, id=762, 519.9425pt x 258.9675pt>
 File: GTS_scheme.png Graphic file (type png)
 
 <use GTS_scheme.png>
@@ -1137,7 +1140,7 @@ Overfull \vbox (1.2019pt too high) detected at line 282
 
 [23
 
-] <LTS_T1.png, id=812, 498.86375pt x 262.9825pt>
+] <LTS_T1.png, id=821, 498.86375pt x 262.9825pt>
 File: LTS_T1.png Graphic file (type png)
  <use LTS_T1.png>
 Package pdftex.def Info: LTS_T1.png used on input line 290.
@@ -1148,7 +1151,7 @@ Overfull \vbox (5.49733pt too high) detected at line 290
 
 [24
 
- <./LTS_T1.png>] <LTS_T2.png, id=842, 505.89pt x 266.9975pt>
+ <./LTS_T1.png>] <LTS_T2.png, id=851, 505.89pt x 266.9975pt>
 File: LTS_T2.png Graphic file (type png)
 
 <use LTS_T2.png>
@@ -1160,7 +1163,7 @@ Overfull \vbox (5.70602pt too high) detected at line 298
 
 [25
 
- <./LTS_T2.png>] <LTS_T3.png, id=873, 500.87125pt x 260.975pt>
+ <./LTS_T2.png>] <LTS_T3.png, id=882, 500.87125pt x 260.975pt>
 File: LTS_T3.png Graphic file (type png)
 
 <use LTS_T3.png>
@@ -1172,7 +1175,7 @@ Overfull \vbox (3.40306pt too high) detected at line 306
 
 [26
 
- <./LTS_T3.png>] <LTS_T4.png, id=902, 498.86375pt x 269.005pt>
+ <./LTS_T3.png>] <LTS_T4.png, id=912, 498.86375pt x 269.005pt>
 File: LTS_T4.png Graphic file (type png)
 
 <use LTS_T4.png>
@@ -1219,7 +1222,7 @@ Overfull \vbox (14.02101pt too high) detected at line 407
 
 <<swe2D_dtcell.mp4>>] [35
 
-] <2d_lts_error.png, id=1212, 562.1pt x 421.575pt>
+] <2d_lts_error.png, id=1223, 562.1pt x 421.575pt>
 File: 2d_lts_error.png Graphic file (type png)
 
 <use 2d_lts_error.png>
@@ -1239,7 +1242,7 @@ l.428 \end{frame}
                   [36
 
  <./2d_lts_error.png (PNG copy)>]
-<LTS_runtime.png, id=1241, 562.1pt x 421.575pt>
+<LTS_runtime.png, id=1251, 562.1pt x 421.575pt>
 File: LTS_runtime.png Graphic file (type png)
  <use LTS_runtime.png>
 Package pdftex.def Info: LTS_runtime.png used on input line 438.
@@ -1251,7 +1254,19 @@ mage}) has been already used, duplicate ignored
 l.438 \end{frame}
                   [37
 
- <./LTS_runtime.png (PNG copy)>] (./main.toc) [38
+ <./LTS_runtime.png (PNG copy)>]
+File: 2d_lts_error.png Graphic file (type png)
+ <use 2d_lts_error.png>
+Package pdftex.def Info: 2d_lts_error.png used on input line 448.
+(pdftex.def)             Requested size: 205.37926pt x 154.03119pt.
+pdfTeX warning (ext4): destination with the same identifier (name{fig:awesome_i
+mage}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.448 \end{frame}
+                  [38
+
+] (./main.toc) [39
 
 ]
 Missing character: There is no â in font phvr7t!
@@ -1260,10 +1275,9 @@ Missing character: There is no “ in font phvr7t!
 Missing character: There is no â in font phvr7t!
 Missing character: There is no € in font phvr7t!
 Missing character: There is no “ in font phvr7t!
+ [40
 
-[39
-
-] [40
+] [41
 
 ]
 \tf@nav=\write6
@@ -1287,24 +1301,24 @@ Package movie15 Warning: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 (movie15)                @@ Rerun to get object references right! @@
 (movie15)                @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 460.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 460.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 470.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 470.
 (./main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 460.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 460.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 470.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 470.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 11084ED55706712C0BF231A0F1D463B5;814.
+(rerunfilecheck)             Checksum: 1A657A0EEB86BFD2A1673891A1DFAC1D;876.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 460.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 470.
  ) 
 Here is how much of TeX's memory you used:
- 19487 strings out of 493089
- 366787 string characters out of 6134843
+ 19471 strings out of 493089
+ 366058 string characters out of 6134843
  487892 words of memory out of 5000000
- 22363 multiletter control sequences out of 15000+600000
+ 22344 multiletter control sequences out of 15000+600000
  40435 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,17n,65p,411b,700s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1320,10 +1334,10 @@ e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/
 texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2015/texmf-
 dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fo
 nts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (40 pages, 2796210 bytes).
+Output written on main.pdf (41 pages, 2798590 bytes).
 PDF statistics:
- 1430 PDF objects out of 1440 (max. 8388607)
- 1334 compressed objects within 14 object streams
- 107 named destinations out of 1000 (max. 500000)
- 373 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1470 PDF objects out of 1728 (max. 8388607)
+ 1373 compressed objects within 14 object streams
+ 110 named destinations out of 1000 (max. 500000)
+ 381 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -67,25 +67,13 @@ breakatwhitespace=true}
 \end{frame}
 
 \section{Introduction}
-\begin{frame}[t]{Shallow water equation and Tsunami}
-  \begin{block}{CFL condition}
-        \begin{itemize}
-            \item A \alert{necessary} condition that makes finite volume and discontinuous Galerkin method stable.
-            \item CFL condition for the n-dimensional case\\
-            \begin{center}
-            	$C = \Delta t max_{i=1,...,n}(\frac{U_{x_{i}}}{\Delta x_{i}})\leq C_{max}$
-            \end{center}
-        \end{itemize}
-    \end{block}
-
-\only<2>{
-	\begin{block}{Global time stepping scheme}
-        \begin{itemize}
-            \item All cells in domain have same time step size $\Delta t$
-            \item May have computational overhead with small $\Delta x_{j}$ in domain or wave speed regarding to water hight $U = u + \sqrt{gh}$
-        \end{itemize}
-    \end{block} 
-}
+\begin{frame}[t]{2004 Indian Earthquake Tsunami}
+  \begin{figure}[p]
+    \centering
+    \includegraphics[width=0.6\textwidth]{2d_lts_error}
+    \caption{Norm difference of GTS \& LTS with different different time step($L=3$)}
+    \label{fig:awesome_image}
+\end{figure}
 \end{frame}
 
 %Algorithms frame started

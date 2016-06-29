@@ -84,17 +84,20 @@
 \headcommand {\beamer@subsectionentry {0}{4}{3}{37}{Benchmark}}\headcommand {\beamer@subsectionpages {35}{36}}
 \headcommand {\slideentry {4}{3}{1}{37/37}{Benchmark}{0}}
 \headcommand {\beamer@framepages {37}{37}}
-\headcommand {\slideentry {5}{0}{1}{38/38}{}{0}}
+\headcommand {\beamer@subsectionentry {0}{4}{4}{38}{MPI Speedup}}\headcommand {\beamer@subsectionpages {37}{37}}
+\headcommand {\slideentry {4}{4}{1}{38/38}{MPI Speedup}{0}}
 \headcommand {\beamer@framepages {38}{38}}
-\headcommand {\slideentry {5}{0}{2}{39/39}{}{0}}
+\headcommand {\slideentry {5}{0}{1}{39/39}{}{0}}
 \headcommand {\beamer@framepages {39}{39}}
-\headcommand {\sectionentry {6}{Thanks}{40}{Thanks}{0}}
-\headcommand {\beamer@sectionpages {38}{39}}
-\headcommand {\beamer@subsectionpages {38}{39}}
-\headcommand {\slideentry {6}{0}{1}{40/40}{}{0}}
+\headcommand {\slideentry {5}{0}{2}{40/40}{}{0}}
 \headcommand {\beamer@framepages {40}{40}}
-\headcommand {\beamer@partpages {1}{40}}
-\headcommand {\beamer@subsectionpages {40}{40}}
-\headcommand {\beamer@sectionpages {40}{40}}
-\headcommand {\beamer@documentpages {40}}
-\headcommand {\def \inserttotalframenumber {35}}
+\headcommand {\sectionentry {6}{Thanks}{41}{Thanks}{0}}
+\headcommand {\beamer@sectionpages {39}{40}}
+\headcommand {\beamer@subsectionpages {39}{40}}
+\headcommand {\slideentry {6}{0}{1}{41/41}{}{0}}
+\headcommand {\beamer@framepages {41}{41}}
+\headcommand {\beamer@partpages {1}{41}}
+\headcommand {\beamer@subsectionpages {41}{41}}
+\headcommand {\beamer@sectionpages {41}{41}}
+\headcommand {\beamer@documentpages {41}}
+\headcommand {\def \inserttotalframenumber {36}}
