@@ -37,13 +37,13 @@ void calculateTimeStep(double *lambdaf, double *lambdag, double *dt, int *levelc
 						// printf("ok!1\n");
 						levelc[x*n_grid + y] = i;
 						dt[x*n_grid + y] = dt0*pow(2, i - 1);
-						cr[x*n_grid + y] = crdum*dt[x*n_grid + y]/dt0;
+						cr[x*n_grid + y] = crdum*dt[x*n_grid + y]/dt0; // @dt0: dt is "adapted" here
 											 // printf("levelc[%d][%d]: %d\t", x, y, levelc[x*n_grid + y]);
 
 						break;
 					}
 					levelc[x*n_grid + y] = LTS_levels;
-					dt[x*n_grid + y] = dt0*pow(2, LTS_levels - 1);
+					dt[x*n_grid + y] = dt0*pow(2, LTS_levels - 1); //@dt0: dt is "adapted" here
 					// printf("dt[%d][%d]: %lf\t", x, y, dt[x*n_grid + y]);
 					cr[x*n_grid + y] = crdum*dt[x*n_grid + y]/dt0;
 
@@ -91,7 +91,7 @@ void calculateTimeStep(double *lambdaf, double *lambdag, double *dt, int *levelc
 			{
 				levelc[x*n_grid + y] = min4(levelf[x*n_grid + y] , levelf[(x+1)*n_grid + y],
 					levelg[x*(n_grid+1) + y],levelg[x*(n_grid+1) + y+1]);
-				dt[x*n_grid + y] = dt0*pow(2, levelc[x*n_grid + y]-1);
+				dt[x*n_grid + y] = dt0*pow(2, levelc[x*n_grid + y]-1); // @dt0: dt is "adapted" here
 				// printf("dt[%d][%d]: %lf\t", x, y, dt[x*n_grid + y]);
 
 			}
