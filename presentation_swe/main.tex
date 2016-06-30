@@ -206,14 +206,6 @@ $(hv)_{t} +(huv)_{x} + (hv^{2} + \frac{1}{2}gh^{2})_{y}+ \alert{ghB_{y}}=0$,\\
       Where $u_{k}$ is the cell wave speed on one of 2 directions.
     \end{itemize}
 \end{block}
-  \only<2->{
-	\begin{columns}
-      \begin{column}{2in}
-        \includegraphics[width=1.6in]{cell_value}
-        %{\newline \begin{center}\small{Marking }\end{center}}
-      \end{column}
-    \end{columns}
-}
 \end{frame}
 
 \begin{frame}[t]{Local CFL Condition}
@@ -226,24 +218,8 @@ $(hv)_{t} +(huv)_{x} + (hv^{2} + \frac{1}{2}gh^{2})_{y}+ \alert{ghB_{y}}=0$,\\
       with the exception of level 1 which is controlled by $Cr_{i}> Cr_{i}/2$. $Cr_{0}$ is the maximum courant number for the simulation.
     \end{itemize}
   \end{block}
-  \only<2>{
-  \begin{block}{Create LTS buffer level}
-    \begin{itemize}
-      \item For stability reason, LTS buffer level in neighbour cells should be created.
-      \item LTS level in each cell should be minum LTS level in its neighbour.
-    \end{itemize}
-  \end{block}
-  }
 \end{frame}
 % add buffer cell part
-\begin{frame}{Create LTS buffer level}
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=1\textwidth]{LTS_buffer}
-    \caption{Create buffer level}
-    \label{fig:LTSbuffer}
-\end{figure}
-\end{frame}
 \begin{frame}{Hierarchical LTS Scheme: illustration}
 \begin{figure}[p]
     \centering
@@ -300,34 +276,7 @@ $(hv)_{t} +(huv)_{x} + (hv^{2} + \frac{1}{2}gh^{2})_{y}+ \alert{ghB_{y}}=0$,\\
     \label{fig:awesome}
 \end{figure}
 \end{frame}
-\subsection{Summery}
-\begin{frame}{Summery for LTS}
-\begin{itemize}
-      \item Step 1: Loop over all cells and set the local time step level based on the local CFL condition. Calculating buffered cell and assigned final LTS level to each cell.
-      \begin{columns}
-      \begin{column}{2in}
-        \includegraphics[width=2.0in]{cell_value}
-        %{\newline \begin{center}\small{Marking }\end{center}}
-      \end{column}
-    \end{columns}
-      \item Step 2: Local update based on the level set before.
-      \item Step 3: Update global time step and go to step 1.
-    \end{itemize}
-\end{frame}
-\begin{frame}{Summery for LTS}
-\begin{itemize}
-      \item Step 1: Loop over all cells and set the local time step level based on the local CFL condition. Calculating buffered cell and assigned final LTS level to each cell.
-      
-      \item Step 2: Local update based on the pre-seted level.
-      \begin{columns}
-      \begin{column}{3in}
-        \includegraphics[width=3in]{LTS_scheme}
-        %{\newline \begin{center}\small{Marking }\end{center}}
-      \end{column}
-    \end{columns}
-      \item Step 3: Update global time step and go to step 1.
-    \end{itemize}
-\end{frame}
+
 %\begin{frame}{Summery for LTS}
 %\begin{itemize}
  %     \item Advantages: improve computation efficiency without loosing accuracy
